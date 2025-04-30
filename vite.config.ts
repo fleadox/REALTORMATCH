@@ -41,6 +41,9 @@ export default defineConfig(({ mode }) => {
       modulePreload: {
         polyfill: true,
       },
+      target: 'esnext',
+      outDir: 'dist',
+      emptyOutDir: true,
     },
     // Expose env variables to your app
     define: {
@@ -50,9 +53,6 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: true,
       host: true,
-      headers: {
-        'Content-Type': 'application/javascript',
-      },
     },
   };
 });
