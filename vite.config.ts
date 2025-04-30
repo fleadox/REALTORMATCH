@@ -36,6 +36,11 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
+      assetsInlineLimit: 0,
+      cssCodeSplit: true,
+      modulePreload: {
+        polyfill: true,
+      },
     },
     // Expose env variables to your app
     define: {
@@ -45,6 +50,9 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: true,
       host: true,
+      headers: {
+        'Content-Type': 'application/javascript',
+      },
     },
   };
 });
