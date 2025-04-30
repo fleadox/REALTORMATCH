@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Get environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = 'https://vdditqxjenyrcgwghagq.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkZGl0cXhqZW55cmNnd2doYWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk5MjQwMDAsImV4cCI6MjAyNTUwMDAwMH0.Gy_MiBVjKgPrpFrVWnuJRIKiw_mCSMdo8u6hMeLzXYo';
 
 // Production debug logging
 if (import.meta.env.PROD) {
@@ -18,33 +18,46 @@ if (import.meta.env.PROD) {
   });
 }
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Environment Variables:', {
-    VITE_SUPABASE_URL: supabaseUrl,
-    VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? 'Set' : 'Not Set',
-    processEnv: process.env,
-    importMetaEnv: import.meta.env
-  });
-  throw new Error('Missing Supabase environment variables');
-}
-
-// Create Supabase client
+// Create Supabase client with explicit configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    storageKey: 'realtormatch.auth.token',
+    storage: {
+      getItem: (key) => {
+        try {
+          return localStorage.getItem(key);
+        } catch (error) {
+          console.error('Error reading from localStorage:', error);
+          return null;
+        }
+      },
+      setItem: (key, value) => {
+        try {
+          localStorage.setItem(key, value);
+        } catch (error) {
+          console.error('Error writing to localStorage:', error);
+        }
+      },
+      removeItem: (key) => {
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          console.error('Error removing from localStorage:', error);
+        }
+      }
+    }
   }
 });
 
 // Create admin client for privileged operations
-const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY;
-export const supabaseAdmin = supabaseServiceKey 
-  ? createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-      }
-    })
-  : null;
+const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkZGl0cXhqZW55cmNnd2doYWdxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NjAyOTk2MCwiZXhwIjoyMDYxNjA1OTYwfQ.mCLoYCrQKlXe-ehNOkwcci6Ubb7kz7gOjSBT-jk3X-I';
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false
+  }
+});
