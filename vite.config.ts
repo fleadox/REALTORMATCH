@@ -12,9 +12,25 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       exclude: ['lucide-react'],
     },
+    build: {
+      sourcemap: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            ui: ['lucide-react'],
+          },
+        },
+      },
+    },
     // Expose env variables to your app
     define: {
       'process.env': env
-    }
+    },
+    server: {
+      port: 5173,
+      strictPort: true,
+      host: true,
+    },
   };
 });
