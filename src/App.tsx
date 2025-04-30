@@ -21,18 +21,28 @@ import { checkEnvVariables } from './lib/test-env';
 import { testSupabaseConnection } from './lib/test-connection';
 
 function App() {
-  useEffect(() => {
-    const checkConnections = async () => {
-      // Check environment variables
-      const envCheck = checkEnvVariables();
-      if (!envCheck.supabaseUrl || !envCheck.supabaseAnonKey) {
-        console.error('Missing required environment variables. Please check your .env.local file.');
-      } else {
-        console.log('✅ Environment variables loaded successfully');
-      }
+  console.log('App component rendering');
 
-      // Test Supabase connection
-      await testSupabaseConnection();
+  useEffect(() => {
+    console.log('App useEffect running');
+    const checkConnections = async () => {
+      try {
+        // Check environment variables
+        const envCheck = checkEnvVariables();
+        console.log('Environment check result:', envCheck);
+        
+        if (!envCheck.supabaseUrl || !envCheck.supabaseAnonKey) {
+          console.error('Missing required environment variables. Please check your .env.local file.');
+        } else {
+          console.log('✅ Environment variables loaded successfully');
+        }
+
+        // Test Supabase connection
+        const connectionResult = await testSupabaseConnection();
+        console.log('Supabase connection test result:', connectionResult);
+      } catch (error) {
+        console.error('Error in checkConnections:', error);
+      }
     };
 
     checkConnections();
