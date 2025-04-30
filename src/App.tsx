@@ -24,6 +24,8 @@ function App() {
     const envCheck = checkEnvVariables();
     if (!envCheck.supabaseUrl || !envCheck.supabaseAnonKey) {
       console.error('Missing required environment variables. Please check your .env.local file.');
+    } else {
+      console.log('✅ Environment variables loaded successfully');
     }
   }, []);
 
