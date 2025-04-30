@@ -10,24 +10,27 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [react()],
+    base: '/',
     resolve: {
       alias: {
         '@': resolve(__dirname, './src'),
       },
     },
     build: {
-      minify: 'esbuild',
+      outDir: 'dist',
+      assetsDir: 'assets',
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html'),
         },
         output: {
-          format: 'es',
-          entryFileNames: '[name].js',
-          chunkFileNames: '[name].js',
-          assetFileNames: '[name].[ext]',
+          entryFileNames: `assets/[name].[hash].js`,
+          chunkFileNames: `assets/[name].[hash].js`,
+          assetFileNames: `assets/[name].[hash].[ext]`,
         },
       },
+      manifest: true,
+      sourcemap: false,
     },
     // Expose env variables to your app
     define: {
