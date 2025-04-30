@@ -7,36 +7,63 @@
   NODE_VERSION = "18"
   NPM_FLAGS = "--legacy-peer-deps"
 
+# Handle SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
   force = true
 
+# Handle static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Handle JavaScript files
 [[headers]]
   for = "/*.js"
   [headers.values]
     Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/*.mjs"
   [headers.values]
     Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/*.jsx"
   [headers.values]
     Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/*.ts"
   [headers.values]
     Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/*.tsx"
   [headers.values]
     Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Handle HTML files
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Content-Type = "text/html"
+    Cache-Control = "no-cache"
+
+# Handle CSS files
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Content-Type = "text/css"
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [dev]
   command = "npm run dev"
