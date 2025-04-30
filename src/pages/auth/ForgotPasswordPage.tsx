@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { supabase } from '../../lib/supabase';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -32,15 +33,19 @@ const ForgotPasswordPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
 
-      // In a real app, this would call your password reset API
-      // For demo, we'll simulate success
+      if (resetError) {
+        throw resetError;
+      }
+
       setIsSuccess(true);
       toast.success('Password reset instructions sent');
     } catch (error) {
-      setError('Failed to send reset instructions. Please try again.');
+      console.error('Password reset error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to send reset instructions');
       setAttempts(prev => prev + 1);
     } finally {
       setIsSubmitting(false);

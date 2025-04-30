@@ -114,23 +114,19 @@ const RegistrationForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label htmlFor="fullName" className="block text-sm font-medium text-gray-200">
+      <div className="mb-6">
+        <label htmlFor="fullName" className="block text-white text-sm font-medium mb-1">
           Full Name
         </label>
-        <div className="mt-1 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <User className="h-5 w-5 text-gray-400" />
-          </div>
+        <div className="relative">
+          <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
           <input
             id="fullName"
             name="fullName"
             type="text"
             required
-            className={`block w-full pl-10 pr-3 py-2 border ${
-              errors.fullName ? 'border-red-500' : 'border-gray-600'
-            } rounded-md bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent`}
-            placeholder="John Doe"
+            className="input pl-10"
+            placeholder="Enter your full name"
             value={formData.fullName}
             onChange={handleChange}
           />
@@ -140,23 +136,19 @@ const RegistrationForm: React.FC = () => {
         )}
       </div>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-200">
-          Email
+      <div className="mb-6">
+        <label htmlFor="email" className="block text-white text-sm font-medium mb-1">
+          Email Address
         </label>
-        <div className="mt-1 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Mail className="h-5 w-5 text-gray-400" />
-          </div>
+        <div className="relative">
+          <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
           <input
             id="email"
             name="email"
             type="email"
             required
-            className={`block w-full pl-10 pr-3 py-2 border ${
-              errors.email ? 'border-red-500' : 'border-gray-600'
-            } rounded-md bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent`}
-            placeholder="you@example.com"
+            className="input pl-10"
+            placeholder="Enter your email address"
             value={formData.email}
             onChange={handleChange}
           />
@@ -166,23 +158,19 @@ const RegistrationForm: React.FC = () => {
         )}
       </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-200">
+      <div className="mb-6">
+        <label htmlFor="password" className="block text-white text-sm font-medium mb-1">
           Password
         </label>
-        <div className="mt-1 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Lock className="h-5 w-5 text-gray-400" />
-          </div>
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
           <input
             id="password"
             name="password"
             type="password"
             required
-            className={`block w-full pl-10 pr-3 py-2 border ${
-              errors.password ? 'border-red-500' : 'border-gray-600'
-            } rounded-md bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent`}
-            placeholder="••••••••"
+            className="input pl-10"
+            placeholder="Create a password"
             value={formData.password}
             onChange={handleChange}
           />
@@ -195,15 +183,15 @@ const RegistrationForm: React.FC = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-500 hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-400 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn-accent w-full"
       >
         {isLoading ? (
           <>
-            <Loader2 className="animate-spin h-5 w-5 mr-2" />
-            Registering...
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            Creating Account...
           </>
         ) : (
-          'Register'
+          'Create Account'
         )}
       </button>
     </form>

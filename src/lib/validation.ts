@@ -38,19 +38,13 @@ export const profileSchema = z.object({
 
 export type ProfileFormData = z.infer<typeof profileSchema>;
 
-// Registration form data with Google auth
+// Registration form data
 export interface RegisterFormData {
   email: string;
   password: string;
   confirmPassword: string;
   fullName: string;
   agreeTerms: boolean;
-  googleAuth?: {
-    email: string;
-    fullName: string;
-    picture: string;
-    accessToken: string;
-  };
 }
 
 export interface AdminLoginFormData {

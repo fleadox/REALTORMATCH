@@ -1,11 +1,14 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  base = "."
+  base = "/"
 
 [build.environment]
   NODE_VERSION = "18"
   NPM_FLAGS = "--legacy-peer-deps"
+  VITE_SUPABASE_URL = "https://vdditqxjenyrcgwghagq.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkZGl0cXhqZW55cmNnd2doYWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk5MjQwMDAsImV4cCI6MjAyNTUwMDAwMH0.Gy_MiBVjKgPrpFrVWnuJRIKiw_mCSMdo8u6hMeLzXYo"
+  VITE_SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkZGl0cXhqZW55cmNnd2doYWdxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NjAyOTk2MCwiZXhwIjoyMDYxNjA1OTYwfQ.mCLoYCrQKlXe-ehNOkwcci6Ubb7kz7gOjSBT-jk3X-I"
 
 # Handle SPA routing
 [[redirects]]

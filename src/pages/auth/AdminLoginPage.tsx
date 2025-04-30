@@ -3,16 +3,19 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Shield, Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { type AdminLoginFormData } from '../../lib/validation';
-import { supabase } from '../../lib/supabase';
+import { supabase, supabaseAdmin } from '../../lib/supabase';
 
 const AdminLoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/admin';
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError(null);
+
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
@@ -35,30 +38,27 @@ const AdminLoginPage: React.FC = () => {
         throw new Error('Authentication failed');
       }
 
-      // Then create admin session
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-auth`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${authData.session?.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          action: 'login',
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to authenticate as admin');
+      // Use admin client for privileged operations
+      if (!supabaseAdmin) {
+        throw new Error('Admin client not available');
       }
 
-      const { session } = await response.json();
-      
+      // Verify admin status using admin client
+      const { data: adminData, error: adminError } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('email', email)
+        .single();
+
+      if (adminError || !adminData || adminData.role !== 'admin') {
+        throw new Error('Not authorized as admin');
+      }
+
+      // Store admin session
       if (rememberMe) {
-        localStorage.setItem('adminSession', JSON.stringify(session));
+        localStorage.setItem('adminSession', JSON.stringify(authData.session));
       } else {
-        sessionStorage.setItem('adminSession', JSON.stringify(session));
+        sessionStorage.setItem('adminSession', JSON.stringify(authData.session));
       }
 
       toast.success('Welcome back, Admin!');
@@ -67,7 +67,7 @@ const AdminLoginPage: React.FC = () => {
       console.error('Admin login error:', error);
       toast.error(error instanceof Error ? error.message : 'Invalid admin credentials');
       
-      // Sign out if auth succeeded but admin session failed
+      // Sign out if auth succeeded but admin verification failed
       await supabase.auth.signOut();
     } finally {
       setIsLoading(false);

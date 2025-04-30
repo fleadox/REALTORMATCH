@@ -10,11 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@auth/core": "^0.34.2",
+    "@clerk/clerk-react": "^5.30.2",
     "@hello-pangea/dnd": "^16.5.0",
     "@hookform/resolvers": "^3.3.4",
-    "@react-oauth/google": "^0.12.1",
     "@supabase/supabase-js": "^2.49.4",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
+    "cross-fetch": "^4.1.0",
     "date-fns": "^3.3.1",
+    "dotenv": "^16.5.0",
     "i18next": "^23.10.1",
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-http-backend": "^2.5.0",
@@ -22,6 +27,8 @@
     "jwt-decode": "^4.0.0",
     "keen-slider": "^6.8.6",
     "lucide-react": "^0.363.0",
+    "next-auth": "^4.24.11",
+    "node-fetch": "^2.7.0",
     "qrcode": "^1.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -34,6 +41,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/node-fetch": "^2.6.12",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.2.67",
     "@types/react-dom": "^18.2.22",
@@ -47,6 +55,7 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "terser": "^5.39.0",
+    "tsx": "^4.19.4",
     "typescript": "^5.2.2",
     "vite": "^5.1.6"
   }

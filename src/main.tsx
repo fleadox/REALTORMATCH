@@ -1,17 +1,10 @@
-import React, { StrictMode } from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import App from './App.tsx';
+import { BrowserRouter } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import App from './App';
 import './i18n';
 import './index.css';
-
-// Debug logging
-console.log('Environment:', {
-  NODE_ENV: import.meta.env.MODE,
-  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Not Set',
-  VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Not Set',
-  VITE_GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID ? 'Set' : 'Not Set'
-});
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -20,28 +13,38 @@ class ErrorBoundary extends React.Component<
   constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false, error: null };
-    console.log('ErrorBoundary initialized');
   }
 
   static getDerivedStateFromError(error: Error) {
-    console.error('Error caught in boundary:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error('Detailed error information:', {
+      error,
+      componentStack: errorInfo.componentStack
+    });
   }
 
   render() {
     if (this.state.hasError) {
-      console.log('Rendering error state');
       return (
-        <div className="min-h-screen bg-background-dark text-white p-8">
+        <div className="min-h-screen bg-gray-900 text-white p-8">
           <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
-          <p className="text-gray-300 mb-4">{this.state.error?.message}</p>
+          <div className="bg-gray-800 p-4 rounded-lg mb-4">
+            <p className="text-red-400 font-mono mb-2">Error: {this.state.error?.message}</p>
+            <pre className="text-sm text-gray-400 overflow-auto">
+              {this.state.error?.stack}
+            </pre>
+          </div>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-primary-500 rounded-lg hover:bg-primary-600"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
           >
             Reload Page
           </button>
@@ -49,54 +52,28 @@ class ErrorBoundary extends React.Component<
       );
     }
 
-    console.log('Rendering children in ErrorBoundary');
     return this.props.children;
   }
 }
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+// Debug logging
+console.log('Environment:', {
+  NODE_ENV: import.meta.env.MODE,
+  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Not Set',
+  VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Not Set'
+});
 
-console.log('Application starting...');
+const container = document.getElementById('root');
+if (!container) throw new Error('Failed to find the root element');
 
-try {
-  console.log('Looking for root element...');
-  const rootElement = document.getElementById('root');
-  if (!rootElement) {
-    throw new Error('Root element not found');
-  }
-  console.log('Root element found, creating root...');
-
-  const root = createRoot(rootElement);
-  console.log('Root created, rendering app...');
-  
-  root.render(
-    <StrictMode>
-      <ErrorBoundary>
-        {googleClientId ? (
-          <GoogleOAuthProvider clientId={googleClientId}>
-            <App />
-          </GoogleOAuthProvider>
-        ) : (
-          <App />
-        )}
-      </ErrorBoundary>
-    </StrictMode>
-  );
-  console.log('App rendered successfully');
-} catch (error) {
-  console.error('Error rendering application:', error);
-  // Render error state directly to root
-  const rootElement = document.getElementById('root');
-  if (rootElement) {
-    console.log('Rendering error state to root element');
-    rootElement.innerHTML = `
-      <div style="min-height: 100vh; background-color: #1A1A1A; color: white; padding: 2rem;">
-        <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">Failed to load application</h1>
-        <p style="color: #999; margin-bottom: 1rem;">${error instanceof Error ? error.message : 'Unknown error'}</p>
-        <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background-color: #2ECC71; border-radius: 0.5rem; hover: background-color: #27AE60;">
-          Reload Page
-        </button>
-      </div>
-    `;
-  }
-}
+const root = createRoot(container);
+root.render(
+  <React.StrictMode>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <App />
+        <Toaster position="top-right" />
+      </BrowserRouter>
+    </ErrorBoundary>
+  </React.StrictMode>
+);
