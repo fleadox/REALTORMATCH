@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "title": "REALTOR MATCH | Find Your Perfect Real Estate Agent",
+    "description": "Georgia's premier real estate agent directory. Find qualified agents and properties in your area."
+  },
+  "nav": {
+    "home": "Home",
+    "findAgents": "Find Agents",
+    "myAccount": "My Account",
+    "signIn": "Sign In"
+  },
+  "header": {
+    "searchPlaceholder": "Search agents or specialties",
+    "locationPlaceholder": "Region or City"
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "regions": "Regions",
+    "contact": "Contact Us",
+    "rights": "All rights reserved."
+  }
+}

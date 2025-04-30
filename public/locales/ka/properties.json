@@ -1,0 +1,11 @@
+{
+  "title": "უძრავი ქონება",
+  "addProperty": "ქონების დამატება",
+  "editProperty": "ქონების რედაქტირება",
+  "propertyType": "ქონების ტიპი",
+  "location": "მდებარეობა",
+  "price": "ფასი",
+  "description": "აღწერა",
+  "viewListing": "განცხადების ნახვა",
+  "noProperties": "უძრავი ქონება ვერ მოიძებნა"
+}

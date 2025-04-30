@@ -1,0 +1,11 @@
+{
+  "title": "Properties",
+  "addProperty": "Add Property",
+  "editProperty": "Edit Property",
+  "propertyType": "Property Type",
+  "location": "Location",
+  "price": "Price",
+  "description": "Description",
+  "viewListing": "View Listing",
+  "noProperties": "No properties found"
+}

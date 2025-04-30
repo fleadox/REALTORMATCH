@@ -1,0 +1,14 @@
+{
+  "title": "My Profile",
+  "editProfile": "Edit Profile",
+  "basicInfo": "Basic Information",
+  "professionalInfo": "Professional Information",
+  "contactInfo": "Contact Information",
+  "languages": "Languages",
+  "regions": "Regions Served",
+  "bio": "Professional Bio",
+  "socialLinks": "Social Links",
+  "verificationStatus": "Verification Status",
+  "verified": "Verified",
+  "pending": "Pending Verification"
+}

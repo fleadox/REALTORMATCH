@@ -1,0 +1,11 @@
+{
+  "title": "Недвижимость",
+  "addProperty": "Добавить объект",
+  "editProperty": "Редактировать объект",
+  "propertyType": "Тип недвижимости",
+  "location": "Расположение",
+  "price": "Цена",
+  "description": "Описание",
+  "viewListing": "Просмотр объявления",
+  "noProperties": "Объекты не найдены"
+}
