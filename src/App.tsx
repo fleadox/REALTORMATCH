@@ -18,15 +18,24 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 import { checkEnvVariables } from './lib/test-env';
+import { testSupabaseConnection } from './lib/test-connection';
 
 function App() {
   useEffect(() => {
-    const envCheck = checkEnvVariables();
-    if (!envCheck.supabaseUrl || !envCheck.supabaseAnonKey) {
-      console.error('Missing required environment variables. Please check your .env.local file.');
-    } else {
-      console.log('✅ Environment variables loaded successfully');
-    }
+    const checkConnections = async () => {
+      // Check environment variables
+      const envCheck = checkEnvVariables();
+      if (!envCheck.supabaseUrl || !envCheck.supabaseAnonKey) {
+        console.error('Missing required environment variables. Please check your .env.local file.');
+      } else {
+        console.log('✅ Environment variables loaded successfully');
+      }
+
+      // Test Supabase connection
+      await testSupabaseConnection();
+    };
+
+    checkConnections();
   }, []);
 
   return (
