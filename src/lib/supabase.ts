@@ -4,17 +4,19 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Debug logging
-console.log('Supabase Configuration:', {
-  url: supabaseUrl,
-  hasAnonKey: !!supabaseAnonKey,
-  anonKeyLength: supabaseAnonKey?.length,
-  anonKeyPrefix: supabaseAnonKey?.substring(0, 20) + '...',
-  envKeys: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')),
-  mode: import.meta.env.MODE,
-  isDev: import.meta.env.DEV,
-  isProd: import.meta.env.PROD
-});
+// Production debug logging
+if (import.meta.env.PROD) {
+  console.log('Production Environment:', {
+    url: supabaseUrl,
+    hasAnonKey: !!supabaseAnonKey,
+    anonKeyLength: supabaseAnonKey?.length,
+    anonKeyPrefix: supabaseAnonKey?.substring(0, 20) + '...',
+    envKeys: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')),
+    mode: import.meta.env.MODE,
+    isDev: import.meta.env.DEV,
+    isProd: import.meta.env.PROD
+  });
+}
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Environment Variables:', {
