@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       sourcemap: true,
-      minify: 'terser',
+      minify: mode === 'production' ? 'esbuild' : false,
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html'),
