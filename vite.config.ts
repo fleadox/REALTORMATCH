@@ -15,35 +15,19 @@ export default defineConfig(({ mode }) => {
         '@': resolve(__dirname, './src'),
       },
     },
-    optimizeDeps: {
-      exclude: ['lucide-react'],
-    },
     build: {
-      sourcemap: true,
-      minify: mode === 'production' ? 'esbuild' : false,
+      minify: 'esbuild',
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html'),
         },
         output: {
           format: 'es',
-          entryFileNames: 'assets/[name]-[hash].js',
-          chunkFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash].[ext]',
-          manualChunks: {
-            vendor: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['lucide-react'],
-          },
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name].js',
+          assetFileNames: '[name].[ext]',
         },
       },
-      assetsInlineLimit: 0,
-      cssCodeSplit: true,
-      modulePreload: {
-        polyfill: true,
-      },
-      target: 'esnext',
-      outDir: 'dist',
-      emptyOutDir: true,
     },
     // Expose env variables to your app
     define: {
