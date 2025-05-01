@@ -1,50 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import { BarChart2, Users, FileText, Settings, Bell, LogOut, ChevronRight, Shield } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
-import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 import AdminOverview from './AdminOverview';
 import AdminUserManagement from './AdminUserManagement';
 import AdminAnalytics from './AdminAnalytics';
 import AdminSettings from './AdminSettings';
 import AdminLogs from './AdminLogs';
 
+interface DashboardStats {
+  totalUsers: number;
+  totalProperties: number;
+  totalAgents: number;
+  recentNotifications: Notification[];
+}
+
+interface Notification {
+  id: string;
+  message: string;
+  createdAt: string;
+  type: 'info' | 'warning' | 'error';
+}
+
 const AdminDashboardPage: React.FC = () => {
-  const { logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const [userCount, setUserCount] = useState(0);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchDashboardStats = async () => {
       try {
-        // Get total user count
-        const { count } = await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true });
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/dashboard`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user?.token}`,
+          },
+        });
 
-        setUserCount(count || 0);
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard stats');
+        }
 
-        // Get unread notifications count
-        const { data: notifications } = await supabase
-          .from('admin_audit_log')
-          .select('*')
-          .eq('read', false)
-          .limit(1);
-
-        setUnreadNotifications(notifications?.length || 0);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
+        const data = await response.json();
+        setStats(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchStats();
-  }, []);
+    fetchDashboardStats();
+  }, [user]);
 
   const handleLogout = async () => {
-    await logout();
+    // Implement logout logic
     navigate('/admin/login');
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!stats) {
+    return <div>No data available</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-900 to-background-dark">
@@ -59,11 +85,6 @@ const AdminDashboardPage: React.FC = () => {
           <div className="flex items-center space-x-4">
             <button className="relative p-2 text-gray-300 hover:text-white">
               <Bell className="w-6 h-6" />
-              {unreadNotifications > 0 && (
-                <span className="absolute top-0 right-0 w-4 h-4 bg-accent-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {unreadNotifications}
-                </span>
-              )}
             </button>
             <button
               onClick={handleLogout}
@@ -111,12 +132,6 @@ const AdminDashboardPage: React.FC = () => {
                   >
                     <Users className="w-5 h-5 mr-3" />
                     <span>Users</span>
-                    <span className="ml-auto flex items-center">
-                      <span className="text-sm bg-white/10 px-2 py-0.5 rounded-full mr-2">
-                        {userCount}
-                      </span>
-                      <ChevronRight className="w-5 h-5" />
-                    </span>
                   </NavLink>
 
                   <NavLink
@@ -131,7 +146,6 @@ const AdminDashboardPage: React.FC = () => {
                   >
                     <FileText className="w-5 h-5 mr-3" />
                     <span>Content</span>
-                    <ChevronRight className="w-5 h-5 ml-auto" />
                   </NavLink>
 
                   <NavLink
@@ -146,7 +160,6 @@ const AdminDashboardPage: React.FC = () => {
                   >
                     <FileText className="w-5 h-5 mr-3" />
                     <span>System Logs</span>
-                    <ChevronRight className="w-5 h-5 ml-auto" />
                   </NavLink>
 
                   <NavLink
@@ -161,7 +174,6 @@ const AdminDashboardPage: React.FC = () => {
                   >
                     <Settings className="w-5 h-5 mr-3" />
                     <span>Settings</span>
-                    <ChevronRight className="w-5 h-5 ml-auto" />
                   </NavLink>
                 </nav>
               </div>

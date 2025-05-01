@@ -1,10 +1,12 @@
 import { toast } from 'react-hot-toast';
-import { PropertyLink } from '../utils/types';
+import { Property } from '../types/property';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Event types for property synchronization
 export type PropertySyncEvent = 
-  | { type: 'CREATE'; data: PropertyLink }
-  | { type: 'UPDATE'; data: Partial<PropertyLink> & { id: string } }
+  | { type: 'CREATE'; data: Property }
+  | { type: 'UPDATE'; data: Partial<Property> & { id: string } }
   | { type: 'DELETE'; data: { id: string } };
 
 // Sync status for monitoring
@@ -36,8 +38,7 @@ export class PropertySyncManager {
   }
 
   private setupEventSource() {
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const eventSource = new EventSource(`${baseUrl}/realtime/v1/property-updates`);
+    const eventSource = new EventSource(`${API_URL}/properties/events`);
 
     eventSource.onmessage = (event) => {
       try {
@@ -85,14 +86,13 @@ export class PropertySyncManager {
   }
 
   // Public methods for property operations
-  async createProperty(property: PropertyLink): Promise<void> {
+  async createProperty(property: Property): Promise<void> {
     this.status = 'syncing';
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/properties`, {
+      const response = await fetch(`${API_URL}/properties`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify(property)
       });
@@ -108,14 +108,13 @@ export class PropertySyncManager {
     }
   }
 
-  async updateProperty(propertyId: string, updates: Partial<PropertyLink>): Promise<void> {
+  async updateProperty(propertyId: string, updates: Partial<Property>): Promise<void> {
     this.status = 'syncing';
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/properties?id=eq.${propertyId}`, {
+      const response = await fetch(`${API_URL}/properties/${propertyId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify(updates)
       });
@@ -134,10 +133,10 @@ export class PropertySyncManager {
   async deleteProperty(propertyId: string): Promise<void> {
     this.status = 'syncing';
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/properties?id=eq.${propertyId}`, {
+      const response = await fetch(`${API_URL}/properties/${propertyId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+          'Content-Type': 'application/json',
         }
       });
 
@@ -174,4 +173,102 @@ export function usePropertySync() {
     subscribe: syncManager.subscribe.bind(syncManager),
     getStatus: syncManager.getStatus.bind(syncManager)
   };
+}
+
+export async function fetchProperties(): Promise<Property[]> {
+  try {
+    const response = await fetch(`${API_URL}/properties`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    throw error;
+  }
+}
+
+export async function fetchPropertyById(propertyId: string): Promise<Property> {
+  try {
+    const response = await fetch(`${API_URL}/properties/${propertyId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching property:', error);
+    throw error;
+  }
+}
+
+export async function deleteProperty(propertyId: string): Promise<void> {
+  try {
+    const response = await fetch(`${API_URL}/properties/${propertyId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error deleting property:', error);
+    throw error;
+  }
+}
+
+export async function createProperty(property: Omit<Property, 'id'>): Promise<Property> {
+  try {
+    const response = await fetch(`${API_URL}/properties`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(property),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating property:', error);
+    throw error;
+  }
+}
+
+export async function updateProperty(propertyId: string, updates: Partial<Property>): Promise<Property> {
+  try {
+    const response = await fetch(`${API_URL}/properties/${propertyId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating property:', error);
+    throw error;
+  }
 }

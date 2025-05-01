@@ -1,106 +1,84 @@
-import { AuthConfig } from "@auth/core";
-import Google from "@auth/core/providers/google";
-import Credentials from "@auth/core/providers/credentials";
-import { compare } from "bcryptjs";
-import { supabase } from "./supabase";
+import { User } from '../context/AuthContext';
 
-export interface UserProfile {
-  id: string;
-  email: string;
-  full_name: string;
-  role: string;
-  password_hash: string;
+export interface AuthError {
+  message: string;
+  status: number;
 }
 
-declare module "@auth/core/jwt" {
-  interface JWT {
-    id?: string;
-    role?: string;
+export async function signIn(email: string, password: string): Promise<User> {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to sign in');
+  }
+
+  return await response.json();
+}
+
+export async function signOut(): Promise<void> {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to sign out');
   }
 }
 
-declare module "@auth/core/types" {
-  interface Session {
-    user: {
-      id: string;
-      role: string;
-      email: string;
-      name: string;
-    }
+export async function resetPassword(email: string): Promise<void> {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to reset password');
   }
 }
 
-export const authConfig: AuthConfig = {
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    Credentials({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+export async function updatePassword(newPassword: string, token: string): Promise<void> {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/update-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ password: newPassword }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to update password');
+  }
+}
+
+export async function getCurrentUser(token: string): Promise<User | null> {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+    });
 
-        try {
-          const { data: user, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('email', credentials.email)
-            .single();
+    if (!response.ok) {
+      return null;
+    }
 
-          if (error || !user) {
-            return null;
-          }
-
-          const userProfile = user as UserProfile;
-          const isValid = await compare(credentials.password, userProfile.password_hash);
-
-          if (!isValid) {
-            return null;
-          }
-
-          return {
-            id: userProfile.id,
-            email: userProfile.email,
-            name: userProfile.full_name,
-            role: userProfile.role,
-          };
-        } catch (error) {
-          console.error('Auth error:', error);
-          return null;
-        }
-      }
-    })
-  ],
-  pages: {
-    signIn: '/login',
-    error: '/auth/error',
-    verifyRequest: '/auth/verify-request',
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-      }
-      return session;
-    },
-  },
-  session: {
-    strategy: "jwt",
-  },
-  secret: process.env.AUTH_SECRET,
-}; 
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+} 

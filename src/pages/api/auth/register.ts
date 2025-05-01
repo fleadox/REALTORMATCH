@@ -1,53 +1,35 @@
-import { hash } from 'bcryptjs';
-import { supabase } from '../../../lib/supabase';
+import { z } from 'zod';
 
-export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  fullName: z.string().min(2),
+});
 
+export type RegisterData = z.infer<typeof registerSchema>;
+
+export async function register(data: RegisterData) {
   try {
-    const { email, password, fullName } = req.body;
+    const validatedData = registerSchema.parse(data);
 
-    if (!email || !password || !fullName) {
-      return res.status(400).json({ message: 'Missing required fields' });
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(validatedData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Registration failed');
     }
 
-    // Check if user already exists
-    const { data: existingUser } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', email)
-      .single();
-
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    // Hash password
-    const hashedPassword = await hash(password, 12);
-
-    // Create user profile
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .insert([
-        {
-          email,
-          full_name: fullName,
-          password_hash: hashedPassword,
-          role: 'user',
-        },
-      ])
-      .select()
-      .single();
-
-    if (profileError) {
-      throw profileError;
-    }
-
-    return res.status(200).json({ message: 'User registered successfully' });
+    return await response.json();
   } catch (error) {
-    console.error('Registration error:', error);
-    return res.status(500).json({ message: 'Failed to register user' });
+    if (error instanceof z.ZodError) {
+      throw new Error('Invalid registration data');
+    }
+    throw error;
   }
 } 

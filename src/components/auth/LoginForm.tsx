@@ -1,27 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Mail, Lock, Loader2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 
 interface LoginFormData {
   email: string;
   password: string;
 }
 
-const LoginForm: React.FC = () => {
+interface LoginFormProps {
+  onSubmit: (email: string, password: string) => Promise<void>;
+  isLoading: boolean;
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
   });
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  const from = location.state?.from?.pathname || '/dashboard';
 
   const validateForm = (): boolean => {
     const newErrors: Partial<LoginFormData> = {};
@@ -40,52 +37,25 @@ const LoginForm: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const success = await login(formData.email, formData.password);
-      
-      if (success) {
-        // Store remember me preference
-        if (rememberMe) {
-          localStorage.setItem('rememberMe', 'true');
-        } else {
-          localStorage.removeItem('rememberMe');
-        }
-        
-        // Redirect to the page they were trying to access or dashboard
-        navigate(from, { replace: true });
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
+    if (validateForm()) {
+      await onSubmit(formData.email, formData.password);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    if (type === 'checkbox') {
-      setRememberMe(checked);
-    } else {
-      setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name as keyof LoginFormData]) {
+      setErrors(prev => ({
         ...prev,
-        [name]: value,
+        [name]: undefined
       }));
-      // Clear error when user starts typing
-      if (errors[name as keyof LoginFormData]) {
-        setErrors(prev => ({
-          ...prev,
-          [name]: '',
-        }));
-      }
     }
   };
 
@@ -107,6 +77,7 @@ const LoginForm: React.FC = () => {
             placeholder="Enter your email address"
             value={formData.email}
             onChange={handleChange}
+            disabled={isLoading}
           />
         </div>
         {errors.email && (
@@ -130,6 +101,7 @@ const LoginForm: React.FC = () => {
             placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange}
+            disabled={isLoading}
           />
         </div>
         {errors.password && (
@@ -145,7 +117,7 @@ const LoginForm: React.FC = () => {
             type="checkbox"
             className="h-4 w-4 text-accent-500 focus:ring-accent-400 border-gray-600 rounded bg-gray-800"
             checked={rememberMe}
-            onChange={handleChange}
+            onChange={(e) => setRememberMe(e.target.checked)}
           />
           <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
             Remember me

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 interface RegistrationFormData {
   email: string;
@@ -19,6 +18,7 @@ const RegistrationForm: React.FC = () => {
   const [errors, setErrors] = useState<Partial<RegistrationFormData>>({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const validateForm = (): boolean => {
     const newErrors: Partial<RegistrationFormData> = {};
@@ -53,45 +53,15 @@ const RegistrationForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Register with Supabase
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-          },
-        },
-      });
-
-      if (authError) {
-        throw new Error(authError.message);
+      const success = await register(formData.email, formData.password, formData.fullName);
+      if (success) {
+        navigate('/login');
       }
-
-      if (!authData.user) {
-        throw new Error('Registration failed');
-      }
-
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            user_id: authData.user.id,
-            full_name: formData.fullName,
-            email: formData.email,
-          },
-        ]);
-
-      if (profileError) {
-        throw new Error('Failed to create profile');
-      }
-
-      toast.success('Registration successful! Please check your email to verify your account.');
-      navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error instanceof Error ? error.message : 'Registration failed');
+      setErrors({
+        email: error instanceof Error ? error.message : 'Registration failed'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -129,6 +99,7 @@ const RegistrationForm: React.FC = () => {
             placeholder="Enter your full name"
             value={formData.fullName}
             onChange={handleChange}
+            disabled={isLoading}
           />
         </div>
         {errors.fullName && (
@@ -151,6 +122,7 @@ const RegistrationForm: React.FC = () => {
             placeholder="Enter your email address"
             value={formData.email}
             onChange={handleChange}
+            disabled={isLoading}
           />
         </div>
         {errors.email && (
@@ -173,6 +145,7 @@ const RegistrationForm: React.FC = () => {
             placeholder="Create a password"
             value={formData.password}
             onChange={handleChange}
+            disabled={isLoading}
           />
         </div>
         {errors.password && (
