@@ -1,9 +1,26 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
+  
+  // Important for redirects to work properly
+  trailingSlash: true,
+
+  // Required for Netlify deployments
+  target: process.env.NETLIFY ? 'serverless' : undefined,
+  
+  // App Router and Server Actions
   experimental: {
     appDir: true,
     serverActions: true,
   },
+  
+  // Add image domains for Supabase storage
+  images: {
+    domains: ['your-supabase-project.supabase.co'],
+  },
+
+  // CORS headers for API routes
   async headers() {
     return [
       {

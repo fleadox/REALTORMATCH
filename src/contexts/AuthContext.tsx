@@ -6,8 +6,8 @@ import {
   useState,
   ReactNode,
 } from 'react';
-import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/react';
-import { AuthContextType, AuthSession, AuthUser, SignInCredentials } from '@/types/auth';
+import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut, SignInOptions } from 'next-auth/react';
+import { AuthContextType, AuthSession, AuthUser } from '@/types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAdmin = user?.role === 'admin';
 
   // Sign in function with error handling
-  const signIn = async (provider: string, options?: SignInCredentials) => {
+  const signIn = async (provider: string, options?: SignInOptions) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -122,9 +122,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Profile update failed');
       }
-
-      // Refresh the session to get updated data
-      // Note: You might need to implement a custom solution based on your setup
     } catch (err) {
       setError(err as Error);
       throw err;

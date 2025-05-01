@@ -19,7 +19,7 @@ export interface SignInCredentials extends SignInOptions {
   email: string;
   password: string;
   redirect?: boolean;
-  [key: string]: any; // Add index signature for compatibility
+  [key: string]: any; // Required for compatibility with SignInOptions
 }
 
 export interface AuthContextType {
@@ -27,7 +27,7 @@ export interface AuthContextType {
   session: AuthSession | null;
   status: 'loading' | 'authenticated' | 'unauthenticated';
   error: Error | null;
-  signIn: (provider: string, options?: SignInCredentials | SignInOptions) => Promise<void>;
+  signIn: (provider: string, options?: SignInOptions) => Promise<void>;
   signOut: () => Promise<void>;
   signUp: (email: string, password: string, name?: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;

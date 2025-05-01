@@ -1,6 +1,6 @@
 [build]
   command = "npm install && npm run build"
-  publish = "dist"
+  publish = ".next"
   base = "/"
 
 [build.environment]
@@ -8,6 +8,10 @@
   NPM_VERSION = "10.2.4"
   NETLIFY_USE_YARN = "false"
   CI = "true"
+
+[functions]
+  included_files = ["node_modules/node-fetch/**"]
+  node_bundler = "esbuild"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -35,7 +39,7 @@
   command = "npm run dev"
   port = 5173
   targetPort = 3000
-  publish = "dist"
+  publish = ".next"
   autoLaunch = true
   framework = "next"
 
@@ -43,6 +47,19 @@
 [[redirects]]
   from = "/*"
   to = "/index.html"
+  status = 200
+  force = false
+  conditions = {Role = ["anonymous"]}
+
+# Required for NextAuth.js to work properly
+[[redirects]]
+  from = "/api/*"
+  status = 200
+  force = true
+
+# Handle Auth.js callback routes
+[[redirects]]
+  from = "/api/auth/*"
   status = 200
   force = true
 
@@ -120,8 +137,4 @@
   for = "/*.ttf"
   [headers.values]
     Content-Type = "font/ttf"
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# Environment variable validation
-[functions]
-  node_bundler = "esbuild" 
+    Cache-Control = "public, max-age=31536000, immutable" 
