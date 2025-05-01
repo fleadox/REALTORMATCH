@@ -1,13 +1,43 @@
 [build]
-  command = "npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
   publish = "dist"
   base = "/"
 
 [build.environment]
-  NODE_VERSION = "18"
-  VITE_API_URL = "your_api_url"
+  NODE_VERSION = "20.11.1"
+  NPM_VERSION = "10.2.4"
 
-# Handle SPA routing
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Handle dependency conflicts
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
+
+# Development settings
+[dev]
+  command = "npm run dev"
+  port = 5173
+  targetPort = 5173
+  publish = "dist"
+  autoLaunch = true
+  framework = "next"
+
+# Handle redirects
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -90,9 +120,6 @@
     Content-Type = "font/ttf"
     Cache-Control = "public, max-age=31536000, immutable"
 
-[dev]
-  command = "npm run dev"
-  port = 5173
-  targetPort = 5173
-  publish = "dist"
-  autoLaunch = true 
+# Environment variable validation
+[functions]
+  node_bundler = "esbuild" 

@@ -94,4 +94,54 @@
 - [ ] 2FA works
 - [ ] Rate limiting works
 - [ ] Monitoring is collecting data
-- [ ] Backups are being created 
+- [ ] Backups are being created
+
+# Deployment Checklist
+
+## Pre-Deployment
+- [ ] All environment variables are set in Netlify
+- [ ] Database migrations are ready
+- [ ] API endpoints are configured correctly
+- [ ] Authentication providers are set up
+- [ ] Email templates are configured
+
+## Deployment Process
+- [ ] Push code changes to production branch
+- [ ] Monitor build logs for errors
+- [ ] Check environment variable loading
+- [ ] Verify database connections
+- [ ] Monitor error logging
+
+## Post-Deployment Verification
+- [ ] Test authentication flows
+  - [ ] Email/Password login
+  - [ ] Google OAuth
+  - [ ] Password reset
+- [ ] Verify email functionality
+  - [ ] Welcome emails
+  - [ ] Password reset emails
+  - [ ] Verification emails
+- [ ] Test Supabase connections
+  - [ ] Data queries
+  - [ ] Real-time subscriptions
+  - [ ] Storage access
+- [ ] Security checks
+  - [ ] Protected routes
+  - [ ] API rate limiting
+  - [ ] Session management
+- [ ] Performance monitoring
+  - [ ] Page load times
+  - [ ] API response times
+  - [ ] Database query performance
+
+## Rollback Plan
+- [ ] Backup of previous deployment
+- [ ] Database rollback scripts ready
+- [ ] Previous environment variables saved
+- [ ] Team notified of deployment
+
+## Monitoring
+- [ ] Error tracking configured
+- [ ] Performance monitoring active
+- [ ] User analytics running
+- [ ] Security alerts enabled 
