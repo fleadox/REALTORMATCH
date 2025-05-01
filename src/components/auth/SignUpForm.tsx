@@ -92,13 +92,8 @@ export function SignUpForm() {
 
     try {
       setIsLoading(true);
-      await signUp(formData.email, formData.password);
-      // Sign in the user after successful registration
-      await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
+      await signUp(formData.email, formData.password, formData.name);
+      // Sign in is handled automatically after successful registration
       router.push('/auth/new-user'); // Redirect to onboarding or dashboard
     } catch (error) {
       setErrors({
@@ -268,12 +263,14 @@ export function SignUpForm() {
                   passwordStrength.score >= 3 ? 'text-green-600' : 'text-red-600'
                 }`}
               >
-                {passwordStrength.message}
+                {passwordStrength.feedback}
               </span>
             </div>
             <div className="h-2 w-full bg-gray-200 rounded-full">
               <div
-                className={`h-full rounded-full ${passwordStrength.color}`}
+                className={`h-full rounded-full ${
+                  passwordStrength.score >= 3 ? 'bg-green-600' : 'bg-red-600'
+                }`}
                 style={{
                   width: `${(passwordStrength.score / 4) * 100}%`,
                 }}

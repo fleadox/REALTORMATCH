@@ -7,7 +7,7 @@ import {
   ReactNode,
 } from 'react';
 import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/react';
-import { AuthContextType, AuthSession, AuthUser } from '@/types/auth';
+import { AuthContextType, AuthSession, AuthUser, SignInCredentials } from '@/types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAdmin = user?.role === 'admin';
 
   // Sign in function with error handling
-  const signIn = async (provider?: string, options?: any) => {
+  const signIn = async (provider: string, options?: SignInCredentials) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -58,23 +58,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Sign up function (implement based on your backend)
-  const signUp = async (email: string, password: string) => {
+  // Sign up function with name parameter
+  const signUp = async (email: string, password: string, name?: string) => {
     try {
       setIsLoading(true);
       setError(null);
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, name }),
       });
 
       if (!response.ok) {
-        throw new Error('Sign up failed');
+        const data = await response.json();
+        throw new Error(data.message || 'Sign up failed');
       }
 
       // Automatically sign in after successful sign up
-      await signIn('credentials', { email, password });
+      await signIn('credentials', { email, password, redirect: false });
     } catch (err) {
       setError(err as Error);
       throw err;
@@ -95,7 +96,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Password reset request failed');
+        const data = await response.json();
+        throw new Error(data.message || 'Password reset request failed');
       }
     } catch (err) {
       setError(err as Error);
@@ -117,7 +119,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Profile update failed');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Profile update failed');
       }
 
       // Refresh the session to get updated data
